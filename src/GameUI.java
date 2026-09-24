@@ -6,9 +6,7 @@ public interface GameUI {
 
     void errorScreen(String message);
 
-    void winScreen(int player);
-
-    void gameOverScreen();
+    void endGameScreen(String messange);
 
     void occupySpot(int spot, char symbol);
 

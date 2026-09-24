@@ -22,10 +22,6 @@ public class RuleEngine {
         this.playerCount = playerCount;
     }
 
-    public int getPlayerCount() {
-        return playerCount;
-    }
-
     public int[] getWinningIndexes() {
         return winningIndexes;
     }
@@ -35,7 +31,7 @@ public class RuleEngine {
     }
 
     public GameState progressGame(){
-        if(checkWinCondition(board.getSpots())){
+        if(checkHorizontal() || checkVertical() || checkDiagonal()){
             return GameState.GAME_WON;
         }
         else if (turn == (board.getFullGridSize())-1) {
@@ -55,22 +51,14 @@ public class RuleEngine {
         return (turn%playerCount)+1;
     }
 
-    private boolean checkWinCondition(char[] spots){
-
-        if(checkHorizontal(spots) || checkVertical(spots) || checkDiagonal(spots)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkHorizontal(char[] spots){
+    private boolean checkHorizontal(){
         int gridSize = board.getGridSize();
         for(int row = 0; row< board.getFullGridSize(); row+= gridSize){
             char currentPlayer = '.';
             int counter = 0;
 
             for(int spot = row; spot<row+ gridSize; spot++){
-                char currentSpot = spots[spot];
+                char currentSpot = board.getCharAtSpot(spot);
 
                 if(currentSpot != '.'){
 
@@ -96,14 +84,14 @@ public class RuleEngine {
         return false;
     }
 
-    private boolean checkVertical(char[] spots){
+    private boolean checkVertical(){
         int gridSize = board.getGridSize();
         for(int column = 0; column< gridSize; column+=1){
             char currentPlayer = '.';
             int counter = 0;
 
             for(int spot = column; spot< board.getFullGridSize(); spot+= gridSize){
-                char currentSpot = spots[spot];
+                char currentSpot = board.getCharAtSpot(spot);
 
                 if(currentSpot != '.'){
 
@@ -128,7 +116,7 @@ public class RuleEngine {
         return false;
     }
 
-    private boolean checkDiagonal(char[] spots){
+    private boolean checkDiagonal(){
         int gridSize = board.getGridSize();
         int fullGridSize = board.getFullGridSize();
 
@@ -143,7 +131,7 @@ public class RuleEngine {
                 return true;
             }
 
-            result = getDiagonalPositions(fullGridSize-gridSize-gridSize*i,fullGridSize,-(gridSize-1), gridSize-i);
+            result = getDiagonalPositions(fullGridSize-gridSize+i,fullGridSize,-(gridSize-1), gridSize-i);
             if(resolveDiagonalResult(result)){
                 return true;
             }
@@ -172,14 +160,12 @@ public class RuleEngine {
             return false;
         }
 
-        System.out.println("Resolving 'array' " + result);
-
         char currentPlayer = '.';
         int counter = 0;
 
         for(int i=0; i<splits.length; i++){
             int currentIndex = Integer.parseInt(splits[i]);
-            char currentSpot = board.getSpots()[currentIndex];
+            char currentSpot = board.getCharAtSpot(currentIndex);
             if(currentSpot != '.'){
 
                 if(currentPlayer != currentSpot) {

@@ -13,6 +13,7 @@ public class GUI implements GameUI {
 
     public GUI(Controller controller){
         this.controller = controller;
+        playerCount = 2;
 
         frame = new JFrame("TerribleTicTacToe");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -210,40 +211,14 @@ public class GUI implements GameUI {
         frame.setVisible(true);
     }
 
-    public void winScreen(int player){
+    public void endGameScreen(String message){
         JDialog window = new JDialog();
         window.setLayout(new GridLayout(2,1));
 
         JPanel topPanel = new JPanel(new FlowLayout());
         JPanel bottomPanel = new JPanel(new FlowLayout());
 
-        JLabel label = new JLabel("Winner Player " + player);
-        JButton button = new JButton("Continue");
-
-        button.addActionListener(e -> {
-            window.dispose();
-            controller.restartGame();
-        });
-
-        topPanel.add(label);
-        bottomPanel.add(button);
-
-        window.add(topPanel);
-        window.add(bottomPanel);
-
-        window.setSize(200,200);
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
-    }
-
-    public void gameOverScreen(){
-        JDialog window = new JDialog();
-        window.setLayout(new GridLayout(2,1));
-
-        JPanel topPanel = new JPanel(new FlowLayout());
-        JPanel bottomPanel = new JPanel(new FlowLayout());
-
-        JLabel label = new JLabel("Game Over!");
+        JLabel label = new JLabel(message);
         JButton button = new JButton("Continue");
 
         button.addActionListener(e -> {

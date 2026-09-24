@@ -13,16 +13,16 @@ public class Board {
         Arrays.fill(spots, '.');
     }
 
-    public char[] getSpots() {
-        return spots;
-    }
-
     public int getGridSize() {
         return gridSize;
     }
 
     public int getFullGridSize() {
         return fullGridSize;
+    }
+
+    public char getCharAtSpot(int index){
+        return spots[index];
     }
 
     public boolean isSpotOccupied(int spot){
@@ -32,4 +32,5 @@ public class Board {
     public void occupySpot(int spot, char player){
         spots[spot] = player;
     }
+
 }

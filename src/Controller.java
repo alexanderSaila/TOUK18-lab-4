@@ -49,15 +49,11 @@ public class Controller {
         gui.selectSymbolScreen();
     }
 
-    public int getPlayerCount(){
-        return ruleEngine.getPlayerCount();
-    }
-
     public boolean extractSymbols(List<String> inputs){
         inputValidator.clearBusyCharacters();
 
         int counter = 0;
-        char[] symbols = new char[getPlayerCount()];
+        char[] symbols = new char[inputs.size()];
 
         for(String input : inputs){
             char tempChar = inputValidator.validateSymbol(input);
@@ -87,23 +83,19 @@ public class Controller {
             board.occupySpot(spot, player);
             gui.occupySpot(spot, player);
             switch (ruleEngine.progressGame()){
-                case GAME_WON -> gameWon();
-                case GAME_OVER -> gameLost();
+                case GAME_WON -> {
+                    gui.showWinningSlots(ruleEngine.getWinningIndexes());
+                    endGame("Winner player " + ruleEngine.getCurrentPlayer());
+                }
+                case GAME_OVER -> endGame("Game Over");
                 case IN_PROGRESS -> { gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());}
             }
         }
     }
 
-    public void gameWon(){
+    private void endGame(String message){
         isGameOver = true;
-        int winner = ruleEngine.getCurrentPlayer();
-        gui.showWinningSlots(ruleEngine.getWinningIndexes());
-        gui.winScreen(winner);
-    }
-
-    public void gameLost(){
-        isGameOver = true;
-        gui.gameOverScreen();
+        gui.endGameScreen(message);
     }
 
     public void restartGame(){
