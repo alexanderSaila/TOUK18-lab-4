@@ -3,34 +3,24 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GUI {
+public class GUI implements GameUI {
 
     private Controller controller;
     private JButton[] buttons;
     private JFrame frame;
-    private JTextField gridInputField;
-    private JTextField winInputField;
+    private JLabel playerInTurn;
+    private int playerCount;
 
     public GUI(Controller controller){
         this.controller = controller;
 
         frame = new JFrame("TerribleTicTacToe");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        startScreen();
-    }
-
-    public String getGridInput(){
-        return gridInputField.getText();
-    }
-
-    public String getWinInput(){
-        return winInputField.getText();
     }
 
     public void startScreen(){
         frame.getContentPane().removeAll();
-        frame.setLayout(new GridLayout(3,1));
+        frame.setLayout(new BorderLayout());
 
         JPanel gridFieldArea = new JPanel(new GridLayout(1,2));
         JPanel winFieldArea = new JPanel(new GridLayout(1,2));
@@ -39,13 +29,14 @@ public class GUI {
         JLabel gridText = new JLabel("Grid:", SwingConstants.CENTER);
         JLabel winText = new JLabel("Win Condition:", SwingConstants.CENTER);
 
-        gridInputField = new JTextField("");
-        winInputField = new JTextField("");
+        JTextField gridInputField = new JTextField("");
+        JTextField winInputField = new JTextField("");
 
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(e -> {
-            controller.setGameRules();
+            controller.setGameRules(gridInputField.getText(), winInputField.getText(), playerCount);
         });
+
         JButton exitButton = new JButton("Exit");
         exitButton.addActionListener(e -> {
             System.exit(1);
@@ -59,13 +50,18 @@ public class GUI {
         winFieldArea.add(winText);
         winFieldArea.add(winInputField);
 
+        JPanel inputFields = new JPanel(new GridLayout(2,1));
+        inputFields.add(gridFieldArea);
+        inputFields.add(winFieldArea);
+
         submitFieldArea.add(submitButton);
         submitFieldArea.add(exitButton);
 
-        frame.add(gridFieldArea);
-        frame.add(winFieldArea);
-        frame.add(submitFieldArea);
+        frame.add(inputFields, BorderLayout.CENTER);
+        frame.add(selectPlayersField(), BorderLayout.NORTH);
+        frame.add(submitFieldArea, BorderLayout.SOUTH);
 
+        frame.revalidate();
         frame.repaint();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -73,10 +69,58 @@ public class GUI {
 
     public void gameScreen(int rowSize){
         frame.getContentPane().removeAll();
+        frame.setLayout(new BorderLayout());
 
-        frame.setLayout(new GridLayout(rowSize,rowSize));
+        JPanel gamePanel = gridField(rowSize);
+        frame.add(gamePanel, BorderLayout.CENTER);
+
+        JLabel currentTurn = new JLabel("Current Turn: Player ");
+        playerInTurn = new JLabel("1");
+
+        JPanel turnOrderArea = new JPanel(new FlowLayout());
+
+        turnOrderArea.add(currentTurn);
+        turnOrderArea.add(playerInTurn);
+        frame.add(turnOrderArea, BorderLayout.SOUTH);
+
         frame.setSize(300,300);
+        frame.repaint();
+        frame.revalidate();
+        frame.setVisible(true);
+    }
 
+    private JPanel selectPlayersField(){
+        JPanel selectionField = new JPanel(new BorderLayout());
+
+        JLabel playerAmountLabel = new JLabel("Amount of Players", SwingConstants.CENTER);
+        JButton decButton = new JButton("-");
+        JLabel playerCountLabel = new JLabel("" + playerCount);
+        JButton incButton = new JButton("+");
+
+        decButton.addActionListener((e) -> {
+            playerCount--;
+            playerCountLabel.setText("" + playerCount);
+            frame.repaint();
+        });
+
+        incButton.addActionListener(e -> {
+            playerCount++;
+            playerCountLabel.setText("" + playerCount);
+            frame.repaint();
+        });
+
+        JPanel inputField = new JPanel(new FlowLayout());
+        inputField.add(decButton);
+        inputField.add(playerCountLabel);
+        inputField.add(incButton);
+        selectionField.add(inputField, BorderLayout.SOUTH);
+        selectionField.add(playerAmountLabel, BorderLayout.NORTH);
+
+        return selectionField;
+    }
+
+    private JPanel gridField(int rowSize){
+        JPanel gridField = new JPanel(new GridLayout(rowSize,rowSize));
         int arraySize = rowSize*rowSize;
         buttons = new JButton[arraySize];
 
@@ -90,12 +134,14 @@ public class GUI {
                 controller.makeMove(spot);
             });
 
-            frame.add(tempButton);
+            gridField.add(tempButton);
         }
 
-        frame.repaint();
-        frame.revalidate();
-        frame.setVisible(true);
+        return gridField;
+    }
+
+    public void updatePlayerTurn(int playerNumber) {
+        playerInTurn.setText("" + playerNumber);
     }
 
     public void errorScreen(String message){
@@ -120,52 +166,13 @@ public class GUI {
         window.setVisible(true);
     }
 
-    public void selectPlayers(){
+    public void selectSymbolScreen(){
         frame.getContentPane().removeAll();
 
-        frame.setLayout(new GridLayout(2,1));
+        frame.setLayout(new GridLayout(playerCount+2,1));
 
-        JPanel topPanel = new JPanel(new FlowLayout());
-        JPanel bottomPanel = new JPanel(new FlowLayout());
-
-        JButton decButton = new JButton("-");
-        JLabel playerCountLabel = new JLabel("" + controller.getPlayerCount());
-        JButton incButton = new JButton("+");
-        JButton submitButton = new JButton("Submit");
-
-        decButton.addActionListener((e) -> {
-            controller.setPlayerCount(controller.getPlayerCount()-1);
-            playerCountLabel.setText("" + controller.getPlayerCount());
-            frame.repaint();
-        });
-
-        incButton.addActionListener(e -> {
-            controller.setPlayerCount(controller.getPlayerCount()+1);
-            playerCountLabel.setText("" + controller.getPlayerCount());
-            frame.repaint();
-        });
-
-        submitButton.addActionListener(e -> {
-            controller.requestSymbols();
-        });
-
-        topPanel.add(decButton);
-        topPanel.add(playerCountLabel);
-        topPanel.add(incButton);
-        bottomPanel.add(submitButton);
-
-        frame.add(topPanel);
-        frame.add(bottomPanel);
-
-        frame.revalidate();
-        frame.repaint();
-        frame.setVisible(true);
-    }
-
-    public void selectSymbol(int playerCount){
-        frame.getContentPane().removeAll();
-
-        frame.setLayout(new GridLayout(playerCount+1,1));
+        JLabel title = new JLabel("Pick Players Symbols", SwingConstants.CENTER);
+        frame.add(title);
 
         List<JTextField> textFields = new ArrayList<>();
 

@@ -3,53 +3,54 @@ import java.util.List;
 
 public class Controller {
 
-    private GUI gui;
+    private GameUI gui;
     private Board board;
     private RuleEngine ruleEngine;
     private InputValidator inputValidator;
     private boolean isGameOver;
 
     public Controller(){
-        gui = new GUI(this);
-        ruleEngine = new RuleEngine(this);
         inputValidator = new InputValidator();
         isGameOver = false;
     }
 
-    public void setGameRules(){
-        int gridSize = inputValidator.validateGridSize(gui.getGridInput());
-        int winLength = inputValidator.validateWinLength(gui.getWinInput());
+    public void setGui(GameUI gui){
+        this.gui = gui;
+        gui.startScreen();
+    }
 
-        if(gridSize == 0){
+    public void setRuleEngine(RuleEngine ruleEngine) {
+        this.ruleEngine = ruleEngine;
+    }
+
+    public void setGameRules(String gridSizeInput, String winLengthInput, int playerCount){
+
+        int gridSize = inputValidator.validateGridSize(gridSizeInput);
+        if(gridSize == 0) {
             gui.errorScreen("Invalid Grid Size");
             return;
-        }else if(winLength == 0){
+        }
+
+        int winLength = inputValidator.validateWinLength(winLengthInput, gridSize);
+        if(winLength == 0) {
             gui.errorScreen("Invalid Win Requirement.");
             return;
         }
 
-        board = new Board(gridSize*gridSize);
+        if (inputValidator.isValidPlayerCount(playerCount)) {
+            gui.errorScreen("Invalid Player Count: " + playerCount);
+            return;
+        }
 
-        ruleEngine.setGridSize(gridSize);
-        ruleEngine.setLengthNeededToWin(winLength);
+        board = new Board(gridSize);
 
-        gui.selectPlayers();
-    }
+        ruleEngine.setup(board, winLength, playerCount);
 
-    public void setPlayerCount(int playerCount){
-        ruleEngine.setPlayerCount(playerCount);
+        gui.selectSymbolScreen();
     }
 
     public int getPlayerCount(){
         return ruleEngine.getPlayerCount();
-    }
-
-    public char[] getSpots(){
-        return board.getSpots();
-    }
-
-    public void requestSymbols(){
-        gui.selectSymbol(getPlayerCount());
     }
 
     public boolean extractSymbols(List<String> inputs){
@@ -71,26 +72,31 @@ public class Controller {
     }
 
     public void startGameScreen(){
-        gui.gameScreen(ruleEngine.getGridSize());
+        gui.gameScreen(board.getGridSize());
     }
 
     public void makeMove(int spot){
         if(isGameOver){
             return;
         }
+        gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());
 
         if(!board.isSpotOccupied(spot)){
             char player = ruleEngine.getNextPlayerSymbol();
 
             board.occupySpot(spot, player);
             gui.occupySpot(spot, player);
-            ruleEngine.progressGame();
+            switch (ruleEngine.progressGame()){
+                case GAME_WON -> gameWon();
+                case GAME_OVER -> gameLost();
+                case IN_PROGRESS -> { gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());}
+            }
         }
     }
 
     public void gameWon(){
         isGameOver = true;
-        int winner = ruleEngine.getWinner();
+        int winner = ruleEngine.getCurrentPlayer();
         gui.showWinningSlots(ruleEngine.getWinningIndexes());
         gui.winScreen(winner);
     }
@@ -102,7 +108,7 @@ public class Controller {
 
     public void restartGame(){
         gui.dispose();
-        new Controller();
+        Main.startGame();
     }
 
 }

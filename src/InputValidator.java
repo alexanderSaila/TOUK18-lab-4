@@ -3,8 +3,6 @@ import java.util.List;
 
 public class InputValidator {
 
-    private int gridSize;
-
     private List<Character> busyCharacters;
 
     public InputValidator(){
@@ -14,7 +12,6 @@ public class InputValidator {
     public int validateGridSize(String input){
         try{
             int parsedInt = Integer.parseInt(input);
-            gridSize = parsedInt;
             return parsedInt;
         } catch (NumberFormatException e) {
             System.out.println(e.getMessage());
@@ -22,7 +19,7 @@ public class InputValidator {
         return 0;
     }
 
-    public int validateWinLength(String input){
+    public int validateWinLength(String input, int gridSize){
         try {
             int parsedInt = Integer.parseInt(input);
             if(parsedInt > gridSize){
@@ -37,6 +34,10 @@ public class InputValidator {
 
     public void clearBusyCharacters(){
         busyCharacters = new ArrayList<>();
+    }
+
+    public boolean isValidPlayerCount(int playerCount){
+        return (playerCount < 2);
     }
 
     public char validateSymbol(String input){
