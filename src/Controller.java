@@ -37,7 +37,7 @@ public class Controller {
             return;
         }
 
-        if (inputValidator.isValidPlayerCount(playerCount)) {
+        if (!inputValidator.isValidPlayerCount(playerCount)) {
             gui.errorScreen("Invalid Player Count: " + playerCount);
             return;
         }

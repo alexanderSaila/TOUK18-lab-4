@@ -14,10 +14,7 @@ public class WinCalculator {
     }
 
     public boolean checkWinCondition(){
-        if(checkHorizontal() || checkVertical() || checkDiagonal()){
-            return true;
-        }
-        return false;
+        return checkHorizontal() || checkVertical() || checkDiagonal();
     }
 
     private boolean checkHorizontal(){

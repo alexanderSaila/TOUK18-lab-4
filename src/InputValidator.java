@@ -37,7 +37,7 @@ public class InputValidator {
     }
 
     public boolean isValidPlayerCount(int playerCount){
-        return (playerCount < 2);
+        return (playerCount > 2);
     }
 
     public char validateSymbol(String input){
