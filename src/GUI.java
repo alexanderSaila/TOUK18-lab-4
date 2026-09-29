@@ -72,7 +72,7 @@ public class GUI implements GameUI {
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout());
 
-        JPanel gamePanel = gridField(rowSize);
+        JPanel gamePanel = gameGridField(rowSize);
         frame.add(gamePanel, BorderLayout.CENTER);
 
         JLabel currentTurn = new JLabel("Current Turn: Player ");
@@ -120,7 +120,7 @@ public class GUI implements GameUI {
         return selectionField;
     }
 
-    private JPanel gridField(int rowSize){
+    private JPanel gameGridField(int rowSize){
         JPanel gridField = new JPanel(new GridLayout(rowSize,rowSize));
         int arraySize = rowSize*rowSize;
         buttons = new JButton[arraySize];
