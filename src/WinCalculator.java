@@ -86,7 +86,7 @@ public class WinCalculator {
         int gridSize = board.getGridSize();
         int fullGridSize = board.getFullGridSize();
 
-        for(int i=0; i<gridSize; i++){ //check down right while moving right
+        for(int i=0; i<gridSize; i++){
             String result = getDiagonalPositions(i, fullGridSize, gridSize+1, gridSize-i);
             if(resolveDiagonalResult(result)){
                 return true;
