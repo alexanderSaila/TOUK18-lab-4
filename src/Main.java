@@ -9,9 +9,11 @@ public class Main {
         Controller controller = new Controller();
 
         RuleEngine ruleEngine = new RuleEngine();
-        GUI gui = new GUI(controller);
+        GUI gui = new GUI(controller, 1);
 
         controller.setRuleEngine(ruleEngine);
-        controller.setGui(gui);
+        controller.addGui(gui);
+
+        gui.startScreen();
     }
 }

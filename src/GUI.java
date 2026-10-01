@@ -5,14 +5,17 @@ import java.util.List;
 
 public class GUI implements GameUI {
 
+    private int playerID;
+
     private Controller controller;
     private JButton[] buttons;
     private JFrame frame;
     private JLabel playerInTurn;
     private int playerCount;
 
-    public GUI(Controller controller){
+    public GUI(Controller controller, int playerID){
         this.controller = controller;
+        this.playerID = playerID;
         playerCount = 2;
 
         frame = new JFrame("TerribleTicTacToe");
@@ -71,6 +74,8 @@ public class GUI implements GameUI {
     public void gameScreen(int rowSize){
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout());
+
+        frame.setTitle("Player: " + playerID);
 
         JPanel gamePanel = gameGridField(rowSize);
         frame.add(gamePanel, BorderLayout.CENTER);
@@ -132,7 +137,7 @@ public class GUI implements GameUI {
             int spot = i;
 
             tempButton.addActionListener(e -> {
-                controller.makeMove(spot);
+                controller.makeMove(spot, playerID);
             });
 
             gridField.add(tempButton);

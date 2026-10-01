@@ -1,9 +1,10 @@
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
 
-    private GameUI gui;
+    private List<GameUI> guiList;
     private Board board;
     private RuleEngine ruleEngine;
     private InputValidator inputValidator;
@@ -12,11 +13,11 @@ public class Controller {
     public Controller(){
         inputValidator = new InputValidator();
         isGameOver = false;
+        guiList = new ArrayList<>();
     }
 
-    public void setGui(GameUI gui){
-        this.gui = gui;
-        gui.startScreen();
+    public void addGui(GameUI gui){
+        guiList.add(gui);
     }
 
     public void setRuleEngine(RuleEngine ruleEngine) {
@@ -24,6 +25,8 @@ public class Controller {
     }
 
     public void setGameRules(String gridSizeInput, String winLengthInput, int playerCount){
+
+        GameUI gui = guiList.get(0);
 
         int gridSize = inputValidator.validateGridSize(gridSizeInput);
         if(gridSize == 0) {
@@ -45,6 +48,11 @@ public class Controller {
         board = new Board(gridSize);
 
         ruleEngine.setup(board, winLength, playerCount);
+
+        for(int i=1; i<playerCount; i++){
+            GameUI tempGui = new GUI(this, i+1);
+            addGui(tempGui);
+        }
 
         gui.selectSymbolScreen();
     }
@@ -68,38 +76,52 @@ public class Controller {
     }
 
     public void startGameScreen(){
-        gui.gameScreen(board.getGridSize());
+        for(GameUI gui : guiList) {
+            gui.gameScreen(board.getGridSize());
+        }
     }
 
-    public void makeMove(int spot){
-        if(isGameOver){
+    public void makeMove(int spot, int playerID){
+        if(isGameOver || !(ruleEngine.isCorrectPlayerTurn(playerID))){
             return;
         }
-        gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());
+        for(GameUI gui : guiList) {
+            gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());
+        }
 
         if(!board.isSpotOccupied(spot)){
             char player = ruleEngine.getNextPlayerSymbol();
 
             board.occupySpot(spot, player);
-            gui.occupySpot(spot, player);
+            for(GameUI gui : guiList) {
+                gui.occupySpot(spot, player);
+            }
             switch (ruleEngine.progressGame()){
                 case GAME_WON -> {
-                    gui.showWinningSlots(ruleEngine.getWinningIndexes());
+                    for(GameUI gui : guiList) {
+                        gui.showWinningSlots(ruleEngine.getWinningIndexes());
+                    }
                     endGame("Winner player " + ruleEngine.getCurrentPlayer());
                 }
                 case GAME_OVER -> endGame("Game Over");
-                case IN_PROGRESS -> { gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());}
+                case IN_PROGRESS -> {
+                    for(GameUI gui : guiList) {
+                        gui.updatePlayerTurn(ruleEngine.getCurrentPlayer());
+                    }
+                }
             }
         }
     }
 
     private void endGame(String message){
         isGameOver = true;
-        gui.endGameScreen(message);
+        guiList.get(0).endGameScreen(message);
     }
 
     public void restartGame(){
-        gui.dispose();
+        for(GameUI gui : guiList) {
+            gui.dispose();
+        }
         Main.startGame();
     }
 

@@ -49,4 +49,8 @@ public class RuleEngine {
         return (turn%playerCount)+1;
     }
 
+    public boolean isCorrectPlayerTurn(int playerID){
+        return (getCurrentPlayer() == playerID);
+    }
+
 }
